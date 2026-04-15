@@ -29,6 +29,52 @@ Some prompts to answer:
 
 You can include a simple diagram or bullet list if helpful.
 
+ this recommender looks at what kind of music a listener likes and then compares that to different songs, so it will give each song a score based on how well it matches the user’s preferences, then ranks the songs and suggests the best ones. Real platforms use a lot of data like listening history, song details, and audio features. So for this project I will try to go off of that so that the system mainly focuses on matching genre and mood first, and then fine tunes the results using things like energy, tempo, danceability, and acousticness.
+
+- Song features: genre, mood, energy, tempo (BPM), danceability, and acousticness
+- User profile features: favorite genre, favorite mood, preferred energy level, and whether they like acoustic songs
+
+
+
+The plan is:
+
+1) Load all the songs from the CSV file.
+2) Go through each song and give it a score based on how well it matches the user.
+3) rank the songs from best match to worst.
+4) Return the top k songs as recommendations.
+
+Song and UserProfile features
+
+- Song: genre, mood, energy, tempo (BPM), danceability, acousticness
+- User profile: favorite genre, favorite mood, preferred energy level, and whether they like acoustic music
+
+How the scoring works:
+
+- Add +2.0 if the song’s genre matches the user’s favorite genre
+- Add +1.0 if the mood matches
+- For energy, give a score based on how close it is to the user’s preferred level
+   - energy_score = 1.0 - abs(song.energy - user.target_energy)
+   - (kept between 0.0 and 1.0)
+- Add +0.5 if the user likes acoustic songs and the track is highly acoustic (e.g., ≥ 0.7)
+- Add smaller bonus points for how close the song is in:
+- valence
+- danceability
+- acousticness
+- Total score = genre points + mood points + energy score + acoustic bonus + other similarity points
+
+Scoring is how the system judges each song on its own
+Ranking is how it compares all the songs and decides which ones are best
+We need both: first to evaluate each song, and then to sort them into a final list.
+
+How the data flows:
+User preferences and the song list both go into the scoring step
+Each song gets scored
+Songs are sorted by score
+The top results are returned as recommendations
+
+Potential bias:
+One thing to watch out for is that the system might rely too much on genre and mood. That means it could miss songs that actually fit really well based on energy or vibe alone. It also assumes the user mostly sticks to one genre and mood, so it might not suggest as much variety or cross-genre music.
+
 ---
 
 ## Getting Started
