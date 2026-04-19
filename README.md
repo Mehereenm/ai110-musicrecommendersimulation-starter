@@ -114,11 +114,251 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
+Six user profiles were run against the 18-song catalog to evaluate scoring behavior.  
+Three are "normal" taste profiles; three are adversarial edge cases designed to stress-test the logic.
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+
+### Profile 1 — High-Energy Pop
+
+```
+  Genre: pop  |  Mood: happy  |  Energy: 0.9  |  Acoustic: No
+
+  #1  Sunrise City  —  Neon Echo
+       Score : 3.92
+       Reasons:
+         • genre match (+2.0)
+         • mood match (+1.0)
+         • energy similarity (+0.92)
+
+  #2  Gym Hero  —  Max Pulse
+       Score : 2.97
+       Reasons:
+         • genre match (+2.0)
+         • energy similarity (+0.97)
+
+  #3  Rooftop Lights  —  Indigo Parade
+       Score : 1.86
+       Reasons:
+         • mood match (+1.0)
+         • energy similarity (+0.86)
+
+  #4  Storm Runner  —  Voltline
+       Score : 0.99
+       Reasons:
+         • energy similarity (+0.99)
+
+  #5  Siren City  —  Neon Harbor
+       Score : 0.98
+       Reasons:
+         • energy similarity (+0.98)
+
+```
+
+Genre + mood match dominates. Sunrise City scores nearly 4 points while the next pop song without a mood match (Gym Hero) sits a full point lower.
+
+
+### Profile 2 — Chill Lofi
+
+```
+  Genre: lofi,  Mood: chill,  Energy: 0.35, Acoustic: Yes
+
+
+  #1  Library Rain  —  Paper Lanterns
+       Score : 4.50
+       Reasons:
+         • genre match (+2.0)
+         • mood match (+1.0)
+         • energy similarity (+1.00)
+         • acoustic match (+0.5)
+
+  #2  Midnight Coding  —  LoRoom
+       Score : 4.43
+       Reasons:
+         • genre match (+2.0)
+         • mood match (+1.0)
+         • energy similarity (+0.93)
+         • acoustic match (+0.5)
+
+  #3  Focus Flow  —  LoRoom
+       Score : 3.45
+       Reasons:
+         • genre match (+2.0)
+         • energy similarity (+0.95)
+         • acoustic match (+0.5)
+
+  #4  Spacewalk Thoughts  —  Orbit Bloom
+       Score : 2.43
+       Reasons:
+         • mood match (+1.0)
+         • energy similarity (+0.93)
+         • acoustic match (+0.5)
+
+  #5  Coffee Shop Stories  —  Slow Stereo
+       Score : 1.48
+       Reasons:
+         • energy similarity (+0.98)
+         • acoustic match (+0.5)
+```
+
+The highest possible score (4.50) is achieved here, all four bonus categories fire at once. Lofi + acoustic is a well served profile in this catalog.
+
+### Profile 3 — Deep Intense Rock
+
+```
+  Genre: rock,  Mood: intense, Energy: 0.92, Acoustic: No
+
+  #1  Storm Runner  —  Voltline
+       Score : 3.99
+       Reasons:
+         • genre match (+2.0)
+         • mood match (+1.0)
+         • energy similarity (+0.99)
+
+  #2  Gym Hero  —  Max Pulse
+       Score : 1.99
+       Reasons:
+         • mood match (+1.0)
+         • energy similarity (+0.99)
+
+  #3  Thunder Forge  —  Ashen Core
+       Score : 0.96
+       Reasons:
+         • energy similarity (+0.96)
+
+  #4  Siren City  —  Neon Harbor
+       Score : 0.96
+       Reasons:
+         • energy similarity (+0.96)
+
+  #5  Sunrise City  —  Neon Echo
+       Score : 0.90
+       Reasons:
+         • energy similarity (+0.90)
+```
+ Only one rock song in the catalog, so #2–#5 fall back on energy proximity alone. A bigger catalog would differentiate these results more.
+
+
+
+### Profile 4 — Adversarial: Moody Metal (unmatched mood)
+
+mood: "sad" does not exist in the catalog. Does the system degrade gracefully?
+
+```
+  Genre: metal,  Mood: sad, Energy: 0.95 Acoustic: No
+
+  #1  Thunder Forge  —  Ashen Core
+       Score : 2.99
+       Reasons:
+         • genre match (+2.0)
+         • energy similarity (+0.99)
+
+  #2  Gym Hero  —  Max Pulse
+       Score : 0.98
+       Reasons:
+         • energy similarity (+0.98)
+
+  #3  Storm Runner  —  Voltline
+       Score : 0.96
+       Reasons:
+         • energy similarity (+0.96)
+
+  #4  Siren City  —  Neon Harbor
+       Score : 0.93
+       Reasons:
+         • energy similarity (+0.93)
+
+  #5  Sunrise City  —  Neon Echo
+       Score : 0.87
+       Reasons:
+         • energy similarity (+0.87)
+```
+
+The system degrades gracefully — no crash. But the mood bonus never fires, so the gap between #1 (2.99) and #2 (0.98) reveals the catalog's single metal song. Results #2–#5 are basically tied by energy alone, which is arbitrary ordering.
+
+
+### Profile 5 — Adversarial: Unknown Genre (classical)
+
+```
+  Genre: classical,  Mood: peaceful,  Energy: 0.3,  Acoustic: Yes
+
+
+  #1  Temple Bells  —  Ashira
+       Score : 2.47
+       Reasons:
+         • mood match (+1.0)
+         • energy similarity (+0.97)
+         • acoustic match (+0.5)
+
+  #2  Spacewalk Thoughts  —  Orbit Bloom
+       Score : 1.48
+       Reasons:
+         • energy similarity (+0.98)
+         • acoustic match (+0.5)
+
+  #3  Library Rain  —  Paper Lanterns
+       Score : 1.45
+       Reasons:
+         • energy similarity (+0.95)
+         • acoustic match (+0.5)
+
+  #4  Coffee Shop Stories  —  Slow Stereo
+       Score : 1.43
+       Reasons:
+         • energy similarity (+0.93)
+         • acoustic match (+0.5)
+
+  #5  Focus Flow  —  LoRoom
+       Score : 1.40
+       Reasons:
+         • energy similarity (+0.90)
+         • acoustic match (+0.5)
+
+```
+
+The system still returns reasonable results (ambient/world/lofi tracks score well on energy + acoustic). However, max score is only 2.47 — the genre bonus is permanently unreachable, so a "classical" user will always get weaker recommendations than users whose genre exists in the catalog.
+
+---
+
+### Profile 6 Adversarial: Contradictory Preferences (high-energy + acoustic)
+
+
+```
+  Genre: pop, Mood: happy  |  Energy: 0.95  |  Acoustic: Yes
+
+  #1  Sunrise City  —  Neon Echo
+       Score : 3.87
+       Reasons:
+         • genre match (+2.0)
+         • mood match (+1.0)
+         • energy similarity (+0.87)
+
+  #2  Gym Hero  —  Max Pulse
+       Score : 2.98
+       Reasons:
+         • genre match (+2.0)
+         • energy similarity (+0.98)
+
+  #3  Rooftop Lights  —  Indigo Parade
+       Score : 1.81
+       Reasons:
+         • mood match (+1.0)
+         • energy similarity (+0.81)
+
+  #4  Moonlit Promenade  —  Heartland
+       Score : 1.07
+       Reasons:
+         • energy similarity (+0.57)
+         • acoustic match (+0.5)
+
+  #5  Late Night Vinyl  —  Blue Harbor
+       Score : 1.00
+       Reasons:
+         • energy similarity (+0.50)
+         • acoustic match (+0.5)
+
+```
+
+Energy wins. The top 3 results are high-energy non-acoustic pop/indie tracks. The acoustic bonus (+0.5) is too small to overcome a ~1.0 energy-similarity gap. The system is effectively "tricked" — it ignores the acoustic preference and behaves like the High-Energy Pop profile.
 
 ---
 
