@@ -36,10 +36,7 @@ def print_recommendations(recommendations, user_prefs, profile_name=""):
 
     print("\n" + "=" * width + "\n")
 
-
-# ---------------------------------------------------------------------------
 # Standard user profiles
-# ---------------------------------------------------------------------------
 
 HIGH_ENERGY_POP = {
     "name": "High-Energy Pop",
@@ -65,9 +62,7 @@ DEEP_INTENSE_ROCK = {
     "likes_acoustic": False,
 }
 
-# ---------------------------------------------------------------------------
 # Adversarial / edge-case profiles
-# ---------------------------------------------------------------------------
 
 # Edge case 1: genre exists in catalog but mood ("sad") matches NO song — tests
 # whether energy alone can still surface reasonable results.
